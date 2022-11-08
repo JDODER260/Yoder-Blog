@@ -1,0 +1,110 @@
+{% extends "blog/layout.html" %}
+{% block content %}
+{%  load crispy_forms_tags %}
+{% load static %}
+<style>
+
+.movebtn {
+  float: right;
+
+}
+
+</style>
+<article class="media content-section">
+  <img src="{{ post.author.profile.profile_pic.url }}" alt="" class="rounded-circle article-img">
+    <div class="media-body">
+      <div class="article-metadata">
+        <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+        <small class="text-muted">{{ post.date_posted|date:"l F d, Y \a\t H:i" }}</small>
+        <div>
+            {% if post.author.id == user.id %}
+                <a href="{% url 'post-update' post.pk %}" class="btn btn-secondary btn-sm m-1">Update</a><a href="{% url 'post-delete' post.pk %}" class="btn btn-danger btn-sm m-1">Delete</a>
+            {% else %}
+                <small class="text-muted">You are not the author of this post so you can not edit it!</small>
+            {% endif %}
+        </div>
+      </div>
+      <h2 class="article-title">{{ post.title }}</h2>
+      
+      <p class="article-content">{{ post.content|safe }}</p>
+    </div>
+  </article>
+<form action="{% url 'like_post' post.pk %}" method="POST">
+    {% csrf_token %}{% if liked %}
+    <button type="submit" name="post_id" value="{{ post.id }}" class="btn btn-warning btn-sm">Unlike</button> -
+    {{ total_likes }} Like/s
+    {% else %}
+    <button type="submit" name="post_id" value="{{ post.id }}" class="btn btn-outline-primary btn-sm">Like</button> -
+    {{ total_likes }} Like/s
+    {% endif %}
+</form>
+{% if post.comments.all %}
+    <div class="comments-wrap">
+      <div id="comments">
+        <h3>{{ total_comments }} Comment/s</h3>
+
+        <!-- START commentlist -->
+        <ol class="commentlist">
+          {% for comment in post.comments.all %}
+          <li class="depth-1 comment content-section">
+            <div class="comment__avatar">
+              <img
+                class="avatar"
+                src="{{ comment.author.profile.profile_pic.url }}"
+                alt=""
+                width="50"
+                height="50"
+              />
+            </div>
+
+            <div class="comment__content">
+              <div class="comment__info">
+                <h2>{{ comment.author.username }}</h2>
+                <div class="comment__time">{{ comment.date_added }}</div>
+              </div>
+
+              <div class="comment__text">
+                <p>{{ comment.body|safe }}</p>
+              </div>
+            </div>
+          </li>
+          {% endfor %}
+        </ol>
+        <!-- END commentlist -->
+      </div>
+      {% endif %}
+      <!-- end comments -->
+
+      <div class="comment-respond">
+        <!-- START respond -->
+        <div id="respond">
+          <h3>Add Comment</h3>
+
+          <form
+            name="contactForm"
+            id="contactForm"
+            method="post"
+            action="{% url 'post-detail' pk %}"
+            autocomplete="off"
+          >
+            <fieldset>
+              {% csrf_token %}{{ form|crispy }}
+
+              <input
+                name="submit"
+                id="submit"
+                class="btn btn-success"
+                value="Add Comment"
+                type="submit"
+              />
+            </fieldset>
+          </form>
+          <!-- end form -->
+        </div>
+        <!-- END respond-->
+      </div>
+      <!-- end comment-respond -->
+    </div>
+    <!-- end comments-wrap -->
+
+{% endblock content %}

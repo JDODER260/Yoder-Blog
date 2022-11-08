@@ -1,0 +1,185 @@
+{% load static %}
+{% csrf_token %}
+<!DOCTYPE html>
+<html>
+<head>
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport">
+    <meta name="Description" content="Yoder Blog is a Custom Blog made with html css javascript and most of all python. In this version of Yoder Blog, I use django. This is a Blog mainly used by the, as you guessed it, Yoders.">
+
+    <meta name="KeyWords" content="Yoder Blog, yoder blog, jdswebsites.xyz, jdoder">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
+    {% if user.is_authenticated %}
+    {% if user.profile.theme %}
+        <link rel="stylesheet" type="text/css" href="{% static 'light.css' %}">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{% static 'dark.css' %}">
+    {% endif %}
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{% static 'light.css' %}">
+    {% endif %}
+
+    {% if title %}
+        <title>Yoder Blog - {{ title }}</title>
+    {% else %}
+        <title>Yoder Blog</title>
+    {% endif %}
+</head>
+<body>
+  {% csrf_token %}
+    <header class="site-header">
+      <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+        <div class="container">
+          <a class="navbar-brand mr-4" href="{% url 'blog-home' %}">Yoder Blog</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarToggle">
+            <div class="navbar-nav mr-auto">
+              <a class="nav-item nav-link" href="{% url 'blog-home' %}">Home</a>
+              <ul class="navbar-nav mr-auto">
+              {% if cat_menu %}
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Categories
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'nofilter' %}">View All</a>
+                    <a class="dropdown-item" href="{% url 'createcat' %}">Add Category</a>
+                    <hr>
+                  {% for item in cat_menu %}
+                        <a class="dropdown-item" href="{% url 'cats' item %}">{{ item }}</a>
+                        {% endfor %}
+                </div>
+              </li>
+              {% endif %}
+              {% if chat_menu %}
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Message Users
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  {% for item in chat_menu %}
+                  {% if item.is_active %}
+                  {% if item == user %}
+                  {% else %}
+                        <a class="dropdown-item" href="{% url 'chat' item.id %}">{{ item }} {{chat_menu.total}}</a>
+                        {% endif %}{% endif %}
+                        {% endfor %}
+                </div>
+              </li>
+            </ul>
+              {% endif %}
+              <a class="nav-item nav-link" href="{% url 'blog-about' %}">About</a>
+            </div>
+            <!-- Navbar Right Side -->
+            <div class="navbar-nav">
+              {% if user.is_authenticated %}
+              <a class="nav-item nav-link" href="{% url 'post-create' %}">New Post</a>
+              <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
+              <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+              {% else %}
+              <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
+              <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main role="main" class="container-flex" style="margin-left:60px; overflow:hidden;">
+      <div class="row">
+        <div class="col-md-8">
+          {% if messages %}
+          {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+          </div>
+          {% endfor %}
+          {% endif %}
+          {% block content %}{% endblock %}
+        </div>
+        <div class="col-md-4" style="margin: 0;">
+          <div class="content-section">
+            {% if user.is_authenticated %}
+            
+            {% if user.is_authenticated %}
+            {% if user.first_name %}
+            <h3>Hello: {{ user.first_name }}</h3>
+            {% else %}
+            <h3>Hello: {{ user.username }}</h3>
+            {% endif %}
+            {% else %}
+            <h3>Info</h3>
+            {% endif %}
+            <p class='text-muted'>Useful links.
+              <form action="{% url 'search_results' %}" method="get">
+          <input type="search" value="Search here..." onblur="if(this.value == '') { this.value = 'Search here...'; }" onfocus="if (this.value == 'Search here...') { this.value = ''; }" class="text-search" name="q" style="margin-top: 5px;">
+          <button type="submit" value="" class="submit-search" hidden></button>
+       </form>
+              <ul class="list-group">
+                <a href="/category/Arduino/" class="{% if user.profile.theme %}list-group-item-light{% else %}list-group-item-dark{% endif %} list-group-item dlistgroup" {% if user.profile.theme %}{% else %}style="background: #333333; color: rgb(120, 120, 120);"{% endif %}>Arduino</a>
+                <a href="/category/Chess/" class="{% if user.profile.theme %}list-group-item-light{% else %}list-group-item-dark{% endif %} list-group-item" {% if user.profile.theme %}{% else %}style="background: #333333; color: rgb(120, 120, 120);"{% endif %}>Chess</a>
+                <a href="/category/Conversation/" class="{% if user.profile.theme %}list-group-item-light{% else %}list-group-item-dark{% endif %} list-group-item" {% if user.profile.theme %}{% else %}style="background: #333333; color: rgb(120, 120, 120);"{% endif %}>Conversation</a>
+                <a href="/category/Feature-Requests/" class="{% if user.profile.theme %}list-group-item-light{% else %}list-group-item-dark{% endif %} list-group-item" {% if user.profile.theme %}{% else %}style="background: #333333; color: rgb(120, 120, 120);"{% endif %}>Featured requests</a>
+              </ul>
+            
+            </p>
+            {% if sidebar %}
+            {% if user.is_authenticated %}
+            {% if user.get_full_name %}
+            <h3>Latest Messeges to: {{ user.get_full_name }}</h3>
+            {% else %}
+            <h3>Latest Messeges to {{ user.username }}</h3>
+            {% endif %}
+            <hr>
+            {% for post in sidebar %}
+            {% if post.author == user %}
+            {% else %}
+            {% if post.person_to == user %}
+            <article class="media content-section">
+              <img src="{{ post.author.profile.profile_pic.url }}" alt="" class="rounded-circle article-img">
+              <div class="media-body">
+                <div class="article-metadata">
+                  <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+                  <small class="text-muted"><a href="{% url 'chat' post.author.pk %}" class="text-muted">{{ post.date_posted|date:"l F d, Y \a\t H:i" }}</a></small>
+                </div>
+                <p class="article-content" style="word-wrap: break-word;">{{ post.content|safe }}</p>
+              </div>
+            </article>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+            {% endif %}
+            {% else %}
+            <h3>Info</h3>
+            <p class='text-muted'>Useful liks.
+              <ul class="list-group">
+                <a href="/category/Arduino/" class="list-group-item-light list-group-item dlistgroup">Arduino</a>
+                <a href="/category/Chess/" class="list-group-item-light list-group-item">Chess</a>
+                <a href="/category/Conversation/" class="list-group-item-light list-group-item">Conversation</a>
+                <a href="/category/Feature-Requests/" class="list-group-item-light list-group-item">Featured requests</a>
+              </ul>
+       </form>
+            </p>
+          {% endif %}
+        </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>

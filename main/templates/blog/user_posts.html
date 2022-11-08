@@ -1,0 +1,106 @@
+{% extends "blog/layout.html" %}
+{% block content %}
+{% if user.is_authenticated %}
+{% load static %}
+<style>
+    h6 {
+        text-indent: 60px;
+    }
+
+    p {
+        padding: 5px;
+    }
+
+    h2,
+    h3,
+    h4,
+    h5,
+    h1 {
+        text-indent: 40px;
+    }
+
+    img, .img-fluid {
+        padding: 5px;
+        height: 150px;
+        width: 150px;
+    }
+
+</style>
+<div class="card mb-3" {% if user.profile.theme %} {% else %} style="background: rgb(77, 77, 77);"{% endif %}>
+    <div class=" row g-0">
+        <div class="col-md-2">
+          <img src="{{ postuser.profile.profile_pic.url }}" alt="" class="rounded-circle userview-img">
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+              {% if postuser.get_full_name %}
+                <h5 class="card-title">{{postuser.get_full_name}} - ({{ postuser.username }})</h5>
+              {% else %}
+                <h5 class="card-title">{{ postuser.username }}</h5>
+              {% endif %}
+                <p class="card-text">{{ postuser.profile.bio|safe }}</p>
+                <p class="card-text"><small class="text-muted">Last seen: {{ postuser.last_login }}</small>
+                  {% if user.is_authenticated %}
+{% if postuser.id == user.id %}
+{% else %}
+
+<br><br>
+                  {% if user.username != postuser.username %}
+<form action="{% url 'like_user' postuser.pk %}" method="POST">
+    {% csrf_token %}{% if liked %}
+    <button type="submit" name="postuser_id" value="{{ postuser.id }}" class="btn btn-warning btn-sm">Unlike</button> -
+    {{ total_likes }} Like/s
+    {% else %}
+    <button type="submit" name="postuser_id" value="{{ postuser.id }}" class="btn btn-outline-primary btn-sm">Like</button> -
+    {{ total_likes }} Like/s
+    {% endif %}
+</form>
+{% endif %}{% endif %}{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr>
+{% if posts %}
+<h1 class="mb-3">Posts by {{ view.kwargs.username }} ({{ page_obj.paginator.count }})</h1>
+        {% for post in posts %}
+        <article class="media content-section">
+          <img src="{{ post.author.profile.profile_pic.url }}" alt="" class="rounded-circle article-img img-fluid">
+            <div class="media-body">
+              <div class="article-metadata">
+                <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+                <small class="text-muted">{{ post.date_posted|date:"l F d, Y \a\t H:i" }}</small>
+              </div>
+              {% if post.title|length > 100 %}
+              <h2><a class="article-title" href="{% url 'post-detail' post.pk %}">{{ post.title|slice:":100" }}...</a></h2>
+              {% else %}
+              <h2><a class="article-title" href="{% url 'post-detail' post.pk %}">{{ post.title }}</a></h2>
+              {% endif %}
+              {% if post.content|length > 300 %}
+                <p class="article-content">{{ post.content|slice:":300"|safe }} ... <i><span class="text-muted">(Click the post to read on.)</span></i></p>
+            {% else %}
+                <p class="article-content">{{ post.content|safe }}</p>
+              {% endif %}
+            </div>
+          </article>
+        {% endfor %}
+        {% if is_paginated %}
+          {% if page_obj.has_previous %}
+            <a href="?page=1" class="btn btn-outline-info mb-4 mr-4">First</a>
+          {% endif %}
+          {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <a href="?page={{ num }}" class="btn btn-info mb-4">{{ page_obj.number }}</a>
+          {% elif num > page_obj.number|add:'-4' and num < page_obj.number|add:'4' %}
+            <a href="?page={{ num }}" class="btn btn-outline-info mb-4">{{ num }}</a>
+          {% endif %}
+          {% endfor %}
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-info mb-4 ml-4">Last</a>
+          {% endif %}
+          <small class="text-muted">Total Pages: {{ page_obj.paginator.num_pages }}</small>
+          {% endif %}{% else %}<h2>{{ postuser.username }} Has Not made a post yet!</h2>{% endif %}
+{% endif %}
+{% endblock content%}

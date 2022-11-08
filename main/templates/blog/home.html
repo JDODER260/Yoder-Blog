@@ -1,0 +1,44 @@
+{% extends "blog/layout.html" %}
+{% block content %}
+
+        {% for post in posts %}
+        <article class="media content-section">
+          <img src="{{ post.author.profile.profile_pic.url }}" alt="" class="rounded-circle article-img">
+            <div class="media-body">
+              <div class="article-metadata">
+                <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+                <small class="text-muted">{{ post.date_posted|date:"l F d, Y \a\t H:i" }} - {{ post.date_posted.date }} - <a href="{% url 'cats' post.category %}">{{ post.category }}</a> - <strong class="text-muted">likes {{ post.total_likes }}</strong></small>
+              </div>
+              {% if post.title|length > 100 %}
+              <h2><a class="article-title" href="{% url 'post-detail' post.pk %}">{{ post.title|slice:":100" }}...</a></h2>
+              {% else %}
+              <h2><a class="article-title" href="{% url 'post-detail' post.pk %}">{{ post.title }}</a></h2>
+              {% endif %}
+              {% if post.content|length > 300 %}
+                <p class="article-content">{{ post.content|slice:":300"|safe }} ... <i><span class="text-muted">(Click the post to read on.)</span></i></p>
+            {% else %}
+                <p class="article-content">{{ post.content|safe }}</p>
+              {% endif %}
+            </div>
+          </article>
+        {% endfor %}
+<div style="margin: 50px;">
+        {% if is_paginated %}
+          {% if page_obj.has_previous %}
+            <a href="?page=1" class="btn btn-outline-info mb-4 mr-4">First</a>
+          {% endif %}
+          {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <a href="?page={{ num }}" class="btn btn-info mb-4">{{ page_obj.number }}</a>
+          {% elif num > page_obj.number|add:'-4' and num < page_obj.number|add:'4' %}
+            <a href="?page={{ num }}" class="btn btn-outline-info mb-4">{{ num }}</a>
+          {% endif %}
+          {% endfor %}
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-info mb-4 ml-4">Last</a>
+          {% endif %}
+          <small class="text-muted">Total Pages: {{ page_obj.paginator.num_pages }}</small>
+        {% endif %}
+</div>
+<footer>This is a filtered page if you want to see any specific post category go to the Categories menu in the navigation bar!</footer>
+{% endblock content%}

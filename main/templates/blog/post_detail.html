@@ -1,0 +1,77 @@
+{% extends "blog/layout.html" %}
+{% block content %}
+{%  load crispy_forms_tags %}
+<style>
+
+.movebtn {
+  float: right;
+
+}
+
+</style>
+<article class="media content-section">
+  <img src="{{ post.author.profile.profile_pic.url }}" alt="" class="rounded-circle article-img">
+    <div class="media-body">
+      <div class="article-metadata">
+        <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+        <small class="text-muted">{{ post.date_posted|date:"l F d, Y \a\t H:i" }}</small>
+        <div>
+            {% if post.author.id == user.id %}
+                <a href="{% url 'post-update' post.pk %}" class="btn btn-secondary btn-sm m-1">Update</a><a href="{% url 'post-delete' post.pk %}" class="btn btn-danger btn-sm m-1">Delete</a>
+            {% else %}
+                <small class="text-muted">You are not the author of this post so you can not edit it!</small>
+            {% endif %}
+        </div>
+      </div>
+      <h2 class="article-title">{{ post.title }}</h2>
+      
+      <p class="article-content">{{ post.content|safe }}</p>
+    </div>
+  </article>
+  <br><br><br>
+  <h2>Comments</h2>
+{% if not post.comments.all %}
+There are no comments <a type="button" value="Comment" onClick="window.open('{% url 'createcomment' post.pk %}','mywindow','width=700,height=500')" href="">Add one</a>
+{% else %}
+<ul>
+    {% for comment in post.comments.all %}
+    <li class="liitem">
+        <strong style="text-indent: 20px; "><p style="padding: 5px;">{{ comment.body|safe }}</p></strong>
+        <div style="float: right;">- 
+          <small>{{ comment.name }} - {{ comment.date_added }}</small>
+          {% if comment.name == user.username %}
+            <br><a href="{% url 'deletecomment' comment.pk %}" class="btn btn-danger btn-sm">Delete</a>
+          {% endif %}
+        </div>
+    </li>
+    <br>
+    {% endfor %}
+</ul>
+{% endif %}
+  <br>
+<button type="button" value="Comment" onClick="window.open('{% url 'createcomment' post.pk %}','mywindow','width=700,height=500')" class="btn btn-success movebtn">Comment</button>
+{% if user.is_authenticated %}
+{% if post.author.id == user.id %}
+{% else %}
+
+<br><br>
+<form action="{% url 'like_post' post.pk %}" method="POST">
+    {% csrf_token %}{% if liked %}
+    <button type="submit" name="post_id" value="{{ post.id }}" class="btn btn-warning btn-sm">Unlike</button> -
+    {{ total_likes }} Like/s
+    {% else %}
+    <button type="submit" name="post_id" value="{{ post.id }}" class="btn btn-outline-primary btn-sm">Like</button> -
+    {{ total_likes }} Like/s
+    {% endif %}
+</form>
+{% endif %}{% endif %}
+<br><br><br><br><br><br><br>
+          <h2 class="text-muted">If You Need to delete a Comment and can't do it contact the admin <a href="{% url 'chat' 1 %}">here</a></h2>
+    <script>
+        window.setInterval('refresh()', 30000);
+        function refresh() {
+                window.location.reload();
+            }
+
+</script>
+{% endblock content%}

@@ -1,0 +1,44 @@
+{% extends "blog/layout.html" %}
+{% load crispy_forms_tags %}
+{% block content %}{% if user.is_authenticated %}
+{% load static %}
+<script src="{% static 'main.js' %}"></script>
+<div id="secondbtn" class="" style="height: 60px; margin: 5px;">
+<button type="button" value="Message" onClick="window.open('{% url 'create_chat' pk %}','mywindow','width=700,height=400')" class="btn btn-success btn-xl float-right-custom btn-block btn-lg">Message</button>
+</div>
+
+    {% if chats %}
+        {% for post in chats %}
+        <article class="media content-section">
+          <img src="{{ post.author.profile.profile_pic.url }}" alt="" class="rounded-circle article-img">
+            <div class="media-body">
+              <div class="article-metadata">
+                <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+                <small class="text-muted">{{ post.date_posted|date:"l F d, Y \a\t H:i" }}</small>
+              </div>
+              <p class="article-content">{{ post.content|safe }}</p>
+            </div>
+          </article>
+        {% endfor %}
+    {% endif %}
+    <script>
+        window.setInterval('refresh()', 10000);
+        const scrollingElement = (document.scrollingElement || document.body);
+        const scrollToBottom = () => {
+        scrollingElement.scrollTop = scrollingElement.scrollHeight;
+        }
+        
+        var name = "{{ user.id }}";
+        var p2 = "{{ pk }}"
+        //document.getElementById("div_id_person_to").style.visibility = "hidden";
+        //document.getElementById("div_id_author").style.visibility = "hidden";
+        //document.getElementById("person_to").value = p2;
+        //document.getElementById("author").value = name;
+        //document.getElementById("person_to").style.visibility = "hidden";
+        function refresh() {
+                window.location.reload();
+            }
+
+</script>
+{% endif %}
+{% endblock content%}
