@@ -1,0 +1,36 @@
+{% extends "blog/layout.html" %}
+{% load static %}
+<link rel=preload type="text/css" href="{% static 'dark.css' %}">
+{% load crispy_forms_tags %}
+{% block content %}
+
+    <div class="content-section">
+      <div class="media">
+        <img class="rounded-circle account-img" src="{{ user.profile.profile_pic.url }}">
+        <div class="media-body">
+          <h2 class="account-heading">{{ user.username }}</h2>
+          <p class="text-secondary">{{ user.email }}</p>
+        </div>
+      </div>
+      <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Update Profile</legend>
+                {{ form.media}}
+                {{ u_form|crispy }}
+            {% if user.profile.theme %}
+            <h4>You are in light mode uncheck to go into dark mode!</h4>
+            {% else %}
+            <h4>You are in dark mode check to go into light mode!!</h4>
+            {% endif %}
+                {{ p_form|crispy }}
+                <small>Forgot Your Password?: <a href="{% url 'password-reset' %}" class="ml-2">Reset Password</a></small><br><small>Change Your Password?: <a href="{% url 'password_change' %}" class="ml-2">Change Password</a></small><br><br>
+            
+          <button class="btn btn-outline-primary" type="submit">Update</button>
+            <div class="float-right-custom">
+            <a href="{% url 'deleteuser' user.id %}" class="btn btn-danger">Delete account</a></div>
+        </fieldset>
+      </form>
+        
+    </div>
+{% endblock content %}

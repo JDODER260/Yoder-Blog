@@ -1,0 +1,10 @@
+{% extends "blog/layout.html" %}
+{% block content %}
+    <h2>You have been loged out</h2>
+    <div class="border-top pt-3" style="margin-top: 10px;">
+            <small>Login Again?: <a href="{% url 'login' %}" class="ml-2 btn btn-primary btn-sm m-1">login</a></small>
+            <small>Need an account?: <a href="{% url 'register' %}" class="ml-2 btn btn-primary btn-sm m-1">Register</a></small>
+            <hr>
+    </div>
+
+{% endblock content%}
